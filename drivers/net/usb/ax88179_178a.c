@@ -1585,8 +1585,8 @@ static void ax88179_get_drvinfo(struct net_device *net,
 {
 	struct ax_device *axdev = netdev_priv(net);
 
-	strlcpy (info->driver, MODULENAME, sizeof(info->driver));
-	strlcpy (info->version, DRIVER_VERSION, sizeof info->version);
+	strscpy (info->driver, MODULENAME, sizeof(info->driver));
+	strscpy (info->version, DRIVER_VERSION, sizeof info->version);
 	usb_make_path (axdev->udev, info->bus_info, sizeof info->bus_info);
 
 	info->eedump_len = 0x3e;
