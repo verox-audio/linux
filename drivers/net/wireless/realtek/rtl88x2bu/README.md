@@ -1,12 +1,17 @@
-# Administrative Note
+# Pending Deprecation
 
-As of upstream version 5.6.1, I'm moving away from individual repositories for each upstream version in favor of a single repository with version-based branches.  Hopefully, this will help with clutter and URL consistency moving forward.  The archived repositories are available here:
-* [rtl88x2BU_WiFi_linux_v5.6.1.6_35492.20191025_COEX20180928-6a6a](https://github.com/cilynx/rtl88x2bu/tree/5.6.1.6_35492.20191025_COEX20180928-6a6a)
-* [rtl88x2BU_WiFi_linux_v5.6.1_30362.20181109_COEX20180928-6a6a](https://github.com/cilynx/rtl88x2bu/tree/5.6.1_30362.20181109_COEX20180928-6a6a)
-* [rtl88x2BU_WiFi_linux_v5.3.1_27678.20180430_COEX20180427-5959](https://github.com/cilynx/rtl88x2BU_WiFi_linux_v5.3.1_27678.20180430_COEX20180427-5959)
-* [rtl88x2BU_WiFi_linux_v5.2.4.4_26334.20180126_COEX20171012-5044](https://github.com/cilynx/rtl88x2BU_WiFi_linux_v5.2.4.4_26334.20180126_COEX20171012-5044)
-* [rtl88x2BU_WiFi_linux_v5.2.4.4_25643.20171212_COEX20171012-5044](https://github.com/cilynx/rtl88x2BU_WiFi_linux_v5.2.4.4_25643.20171212_COEX20171012-5044)
-* [rtl88x2BU_WiFi_linux_v5.2.4.1_22719_COEX20170518-4444.20170613](https://github.com/cilynx/rtl88x2BU_WiFi_linux_v5.2.4.1_22719_COEX20170518-4444.20170613)
+A few versions ago (around 6.4 IIRC), rtw88x2bu support has been added to the
+mainline Linux kernel.  This repo will be maintained until we either receive a
+few comments on https://github.com/cilynx/rtl88x2bu/issues/270 that the
+mainline driver is working well or [MaxG87](https://github.com/MaxG87) and
+[cilynx](https://github.com/cilynx) agree that no feedback means no one is
+still using this driver and we make the executive decision to archive it.
+
+**NOTE:** As of Linux v6.16, the maintainer is no longer using the driver
+themself. Due to ongoing stability issues with either the Wifi dongle or the
+driver of this repository the maintainer switched to a new Wifi dongle that is
+supported by the mainline kernel. Therefore, the maintainer will not be able to
+detect subtle issues themself anymore.
 
 # Driver for rtl88x2bu wifi adaptors
 
@@ -20,13 +25,14 @@ Build confirmed on:
 * Linux version `5.15.89` on Manjaro (3 February 2023)
 * Linux version `5.19` on Ubuntu 22.4
 * Linux version `6.1.0-9-amd64` on Debian Bookworm
-* Linux version `6.1.*` (self compiled) on Debian Bookworm and Ubuntu 22.04
-* Linux version `6.2.*` (self compiled) on Debian Bookworm and Ubuntu 22.04
-* Linux version `6.3.*` (self compiled) on Debian Bookworm and Ubuntu 22.04
-* Linux version `6.4.3` (self compiled) on Debian Bookworm
-* Linux version `6.5.5` (self compiled) on Debian Bookworm
-* Linux version `6.6.1` (self compiled) on Debian Bookworm
-* Linux version `6.7.2` (self compiled) on Debian Bookworm and Ubuntu 22.04
+* Linux version `6.1.*` to `6.12.*` (self-compiled) on Debian and Ubuntu 22.04
+* Linux version `6.10.3` to `6.12.10` on Debian Trixie
+* Linux version `6.13.0` (self-compiled) on Debian Trixie
+
+As of lately the maintainer experienced issues with the driver on Debian
+Testing, covering several Linux Kernel versions. More details can be found in
+[issue 280](https://github.com/cilynx/rtl88x2bu/issues/280). Any suggestions on
+how to troubleshoot or fix this are welcome there too.
 
 ## Using and Installing the Driver
 
@@ -42,26 +48,39 @@ important work by saving and such beforehand.
 ### DKMS installation
 
 If you want to have the driver available at startup, it will be convenient to
-register it in DKMS. An executable explanation of how to do so can be found in
-the script `deploy.sh`. Since registering a kernel module in DKMS is a major
-intervention, only execute it if you understand what the script does.
+register it in DKMS. This can be done using the script `deploy.sh`, for either
+
+  * all kernels,
+  * a specific kernel, or
+  * the currently active kernel.
+
+Please consult `--help` for more information and consider reading the script
+before executing it.
+
+Since registering a kernel module in DKMS is a major intervention, only execute
+it if you understand what the script does.
 
 ### Unknown Symbol Errors
 
-Some users reported problems due to `Unknown symbol in module`. This can be
-caused by old deployments of the driver still being present in the systems
-directories. One solution reported was to forcefully remove all old driver
-modules:
+Some users reported problems due to `Unknown symbol in module`. A likely cause
+of this is that the cfg80211 module is not present in the Kernel. You can fix
+this by running it:
+
+    sudo modprobe cfg80211
+
+
+Another reported cause was that old deployments of the driver were still
+present in the system directories. One reported solution was to forcibly remove
+all old driver modules. **This is a drastic measure. It may prevent you from
+using other external WiFi adapters.** See [this
+issue](https://github.com/cilynx/rtl88x2bu/issues/249) for more information.
+
+If you want to proceed anyways, you can run the following commands:
 
     sudo dkms remove rtl88x2bu/5.8.7.4 --all
     find /lib/modules -name cfg80211.ko -ls
     sudo rm -f /lib/modules/*/updates/net/wireless/cfg80211.ko
 
-
-This can also be caused by cfg80211 module not being present in the kernel.
-You can remedy this by running:
-
-    sudo modprobe cfg80211
 
 ### Linux 5.18+ and RTW88 Driver
 
