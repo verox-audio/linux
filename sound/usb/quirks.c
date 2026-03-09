@@ -2053,6 +2053,7 @@ u64 snd_usb_interface_dsd_format_quirks(struct snd_usb_audio *chip,
 	case USB_ID(0x278b, 0x5100): /* Rotel RC-1590 */
 	case USB_ID(0x27f7, 0x3002): /* W4S DAC-2v2SE */
 	case USB_ID(0x29a2, 0x0086): /* Mutec MC3+ USB */
+	case USB_ID(0x2afd, 0x000b): /* McIntosh DA2 */
 	case USB_ID(0x2bb1, 0x3086): /* Singxer F-1 converter board */
 	case USB_ID(0x3148, 0x0077): /* Cyrus QXR */
 	case USB_ID(0x6b42, 0x0042): /* MSB Technology */
