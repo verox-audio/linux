@@ -742,8 +742,10 @@ ax_tx_fixup(struct ax_device *dev, struct sk_buff *skb, gfp_t flags)
 	tx_hdr1 = skb->len;
 	tx_hdr2 = skb_shinfo(skb)->gso_size;
 
-	if ((dev->netdev->features & NETIF_F_SG) && skb_linearize(skb))
+	if ((dev->netdev->features & NETIF_F_SG) && skb_linearize(skb)) {
+		dev_kfree_skb_any(skb);
 		return NULL;
+	}
 
 	headroom = skb_headroom(skb);
 	tailroom = skb_tailroom(skb);
